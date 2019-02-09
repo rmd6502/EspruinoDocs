@@ -81,11 +81,21 @@ DS3231.prototype.setDate = function(date,month,year) {
 };
 
 // Set the time
-DS3231.prototype.setTime = function(hour,minute) {
-  this.i2c.writeTo(C.i2c_address,[C.secsReg, 0]);
+DS3231.prototype.setTime = function(hour,minute,seconds=0) {
+  this.i2c.writeTo(C.i2c_address,[C.secsReg, (dec2bcd(seconds))]);
   this.i2c.writeTo(C.i2c_address,[C.minsReg, (dec2bcd(minute))]);
   this.i2c.writeTo(C.i2c_address,[C.hourReg, (dec2bcd(hour))]);
 };
+
+DS3231.prototype.setFromDate = function(dateObj) {
+  this.i2c.writeTo(C.i2c_address,[C.dateReg, (dec2bcd(dateObj.getDate()))]);
+  this.i2c.writeTo(C.i2c_address,[C.monthReg, (dec2bcd(dateObj.getMonth()))]);
+  this.i2c.writeTo(C.i2c_address,[C.yearReg, (dec2bcd(dateObj.getYear()))]);
+  this.dstStatus = this.isDST(date,month,year);
+  this.i2c.writeTo(C.i2c_address,[C.secsReg, (dec2bcd(dateObj.getSeconds()))]);
+  this.i2c.writeTo(C.i2c_address,[C.minsReg, (dec2bcd(dateObj.getMinute()))]);
+  this.i2c.writeTo(C.i2c_address,[C.hourReg, (dec2bcd(dateObj.getHour()))]);
+}
 
 // Read the current date & time
 DS3231.prototype.readDateTime = function () {
@@ -116,6 +126,20 @@ DS3231.prototype.readDateTime = function () {
   var rtcDateTime = rtcDate+" "+rtcTime;
   return rtcDateTime;
 };
+
+DS3231.prototype.readDateTimeAsDate = function () {
+	  this.i2c.writeTo(C.i2c_address, C.secsReg/* address*/);
+	  var data = this.i2c.readFrom(C.i2c_address, 7/* bytes */); //read number of bytes from address
+	  var seconds = bcd2dec(data[0]);
+	  var minutes = bcd2dec(data[1]);
+	  var hours = bcd2dec(data[2]);
+	  var dow = bcd2dec(data[3]);
+	  var date = bcd2dec(data[4]);
+	  var month = bcd2dec(data[5]);
+	  var year = bcd2dec(data[6]);
+	  var retDate = new Date(year,month,date,hours,minutes,seconds);
+	  return retDate;
+}
 
 exports.connect = function(i2c, options) {
   return new DS3231(i2c, options);
