@@ -90,8 +90,8 @@ DS3231.prototype.setTime = function(hour,minute,seconds=0) {
 DS3231.prototype.setFromDate = function(dateObj) {
   this.i2c.writeTo(C.i2c_address,[C.dateReg, (dec2bcd(dateObj.getDate()))]);
   this.i2c.writeTo(C.i2c_address,[C.monthReg, (dec2bcd(dateObj.getMonth()))]);
-  this.i2c.writeTo(C.i2c_address,[C.yearReg, (dec2bcd(dateObj.getYear()))]);
-  this.dstStatus = this.isDST(dateObj.getDate(),dateObj.getMonth(),dateObj.getYear());
+  this.i2c.writeTo(C.i2c_address,[C.yearReg, (dec2bcd(dateObj.getFullYear()))]);
+  this.dstStatus = this.isDST(dateObj.getDate(),dateObj.getMonth(),dateObj.getFullYear());
   this.i2c.writeTo(C.i2c_address,[C.secsReg, (dec2bcd(dateObj.getSeconds()))]);
   this.i2c.writeTo(C.i2c_address,[C.minsReg, (dec2bcd(dateObj.getMinute()))]);
   this.i2c.writeTo(C.i2c_address,[C.hourReg, (dec2bcd(dateObj.getHour()))]);
